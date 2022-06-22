@@ -12,7 +12,7 @@ module.exports.mongoDbSettings = {
 module.exports.redisSettings = {
   settings: {
     prefix: '_cache',
-    host: 'localhost',
+    host: '172.20.0.4',
     port: 6379,
     // password: '****'
   },

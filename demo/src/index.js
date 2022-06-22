@@ -4,7 +4,7 @@ const connect = require('../config/connectionMongoDb');
 const { healthMonitor, dependencyServices, } = require("@condor-labs/health-middleware");
 
 const settings = require('../config/constants');
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const app = express();
 
 const healthConfig = {
@@ -59,7 +59,7 @@ app.use(async function (req, res, next) {
   next();
 });
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', PORT);
 
 app.get('/', (req, res) => {
   res.status(200).json({
