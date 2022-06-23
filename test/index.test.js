@@ -3,6 +3,7 @@ const express = require('express');
 const request = require('supertest');
 const bookRoutes = require('../routes/bookRoutes');
 const connect = require('../config/connectionMongoDb');
+
 const PORT = 3000;
 const app = express();
 app.use(express.json());
@@ -10,20 +11,8 @@ app.use(async function (req, res, next) {
     await connect;
     next();
 });
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || PORT);
 app.use('/books', bookRoutes);
-
-describe('GET /books', () => {
-    test("should respond with a 200 status code", async () => {
-        const response = await request(app).get("/books").send();
-        expect(response.statusCode).toBe(200);
-    });
-
-    test("should respond an Object", async () => {
-        const response = await request(app).get("/books").send();
-        expect(response.body).toBeInstanceOf(Object);
-    });
-});
 
 // status:  "LENT", "AVAILABLE", "UNAVAILABLE"
 describe("POST /books", () => {
@@ -61,13 +50,12 @@ describe("POST /books", () => {
         test("shoud respond with a 400 status code", async () => {
             const fields = [
                 { title: "some title" + Math.floor(Math.random() * 6) },
-                { author: "some author" },
+                { author: "some author" }
             ];
 
-            for (const body of fields) {
-                const response = await request(app).post("/books").send(body);
-                expect(response.statusCode).toBe(400);
-            }
+            const response = await request(app).post("/books").send(fields);
+            expect(response.statusCode).toBe(400);
+
         });
     });
 });
