@@ -1,0 +1,4 @@
+coverage
+.history
+node_modules
+.eslintrc.js
