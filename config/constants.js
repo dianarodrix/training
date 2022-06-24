@@ -16,5 +16,5 @@ module.exports.redisSettings = {
     port: 6379,
     // password: '****'
   },
-  keyName: 'test:condorlabs-npm-helpers:counter'
+  keyName: 'test:condorlabs-npm-helpers:counter',
 };

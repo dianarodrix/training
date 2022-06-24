@@ -47,7 +47,7 @@
     "husky": "8.0.1",
     "jest": "^28.1.1",
     "lint-staged": "10.5.4",
-    "prettier": "2.7.0",
+    "prettier": "2.7.1",
     "supertest": "^6.2.3"
   },
   "lint-staged": {

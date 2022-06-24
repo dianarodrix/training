@@ -1,4 +1,3 @@
-
 const typeDefs = `
     type Book {
         _id: String!
