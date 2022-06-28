@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test jest --forceExit ",
+    "test-and-fail-after-3": "cross-env NODE_ENV=test jest --bail 3",
     "test:watch": "NODE_ENV=test jest  --watchAll --verbose false",
     "coverage": "jest --coverage",
     "dev": "nodemon src/index.js",
@@ -23,6 +24,7 @@
     "@condor-labs/redis": "^1.0.4",
     "apollo-server-express": "^2.25.4",
     "body-parser": "^1.20.0",
+    "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "express-graphql": "^0.12.0",
     "graphql": "^15.8.0",

@@ -2,11 +2,11 @@ const express = require('express');
 const bookRoutes = require('../routes/bookRoutes');
 const connect = require('../config/connectionMongoDb');
 const { healthMonitor, dependencyServices } = require('@condor-labs/health-middleware');
-
+require('dotenv').config();
 const settings = require('../config/constants');
 const PORT = process.env.PORT || 3000;
 const app = express();
-
+const logger = require('@condor-labs/logger');
 const healthConfig = {
   service: 'service demo',
   description: 'my service with some demo check',
@@ -68,5 +68,5 @@ app.get('/', (req, res) => {
 app.use('/books', bookRoutes);
 
 app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
+  logger.info(`App listening on port ${PORT}`);
 });
