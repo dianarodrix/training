@@ -41,6 +41,34 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/demo:latest
+      
+      - name: Build docker
+        run: | 
+            echo ---Building and starting up docker---
+            docker-compose -f ./dianarodrix/demo/docker-compose.yml -f ./dianarodrix/demo/docker-compose.prod.yml  up -d
+            echo ---Containers up---
+
+      - name: Run test
+        run: |
+            echo --- Running test cases ---
+            docker-compose -f ./dianarodrix/demo/docker-compose.yml -f ./dianarodrix/demo/docker-compose.dev.yml -p testing up --build --exit-code-from api-test
+            echo --- Completed test cases ---
+
+      - name: Extract commit
+        shell: bash
+        run: |
+              echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+              
+      - name: Get branch name (merge)
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+
+      - name: Get branch name (pull request)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: echo "BRANCH=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
