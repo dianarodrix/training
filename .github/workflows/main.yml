@@ -45,13 +45,13 @@ jobs:
       - name: Build docker
         run: | 
             echo ---Building and starting up docker---
-            docker-compose -f ./dianarodrix/demo/docker-compose.yml -f ./dianarodrix/demo/docker-compose.prod.yml  up -d
+            docker-compose -f ./dianarodrix/docker-compose.yml -f ./dianarodrix/docker-compose.prod.yml  up -d
             echo ---Containers up---
 
       - name: Run test
         run: |
             echo --- Running test cases ---
-            docker-compose -f ./dianarodrix/demo/docker-compose.yml -f ./dianarodrix/demo/docker-compose.dev.yml -p testing up --build --exit-code-from api-test
+            docker-compose -f ./dianarodrix/docker-compose.yml -f ./dianarodrix/docker-compose.dev.yml -p testing up --build --exit-code-from api-test
             echo --- Completed test cases ---
 
       - name: Extract commit
