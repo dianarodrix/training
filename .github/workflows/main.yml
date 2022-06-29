@@ -48,22 +48,16 @@ jobs:
          #   docker-compose -f docker-compose.yml -f docker-compose.dev.yml -p testing up --build --exit-code-from api-test
           #  echo --- Completed test cases ---
 
-      - name: Extract commit
-        shell: bash
+      # Name of step
+      - name: Start AWS EC2
+        # Run AWS Command on the GitHub Hosted runner which starts the instance using AWS authentication stored in GitHub Secrets (see below how to add)
         run: |
-              echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
-              
-      - name: Get branch name (merge)
-        if: github.event_name != 'pull_request'
-        shell: bash
-        run: echo "BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
-
-      - name: Get branch name (pull request)
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: echo "BRANCH=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
-
-
+          aws ec2 start-instances --instance-ids ${{secrets.AWS_EC2_INSTANCE_ID }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+          
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo END!
