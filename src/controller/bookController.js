@@ -1,7 +1,7 @@
 const bookModel = require('../model/bookModel');
 const logger = require('@condor-labs/logger');
 
-const { redisSettings } = require('../config/constants');
+const { redisSettings } = require('../../config/constants');
 let client = {};
 try {
   const redis = require('@condor-labs/redis')(redisSettings.settings);
@@ -26,21 +26,67 @@ try {
   logger.error({ date: Date.now(), error: error });
 }
 
-// Display list of all books.
+/**
+ * Books list
+ * @param {*} req
+ * @param {*} res
+ */
 exports.bookList = async function (req, res) {
+  const offset = req.query.offset && req.query.offset >= 0 ? parseInt(req.query.offset, 10) : 0;
+  const limit = req.query.limit && req.query.limit >= 1 && req.query.limit <= 100 ? parseInt(req.query.limit, 10) : 25;
+  let bookList = {};
+  const bookResp = {
+    href: req.originalUrl.replace(/\?.*$/, ''),
+    offset: offset,
+    limit: limit,
+    size: 0,
+    items: [],
+  };
   try {
     // Check the redis store for the data first
+    client.del('books');
     client.get('books', async (err, data) => {
       if (data) {
-        res.status(200).send({
-          message: `Data from the cache`,
-          data: JSON.parse(data),
-        });
+        bookList = JSON.parse(data);
+        bookResp.items = bookList.slice(offset, offset + limit);
       } else {
-        const bookList = await bookModel.find();
+        bookList = await bookModel.find().sort({ title: 1 });
         // save in cache
         client.setex('books', 1440, JSON.stringify(bookList));
-        res.status(200).send(bookList);
+        bookResp.items = bookList.slice(offset, offset + limit);
+      }
+      bookResp.size = bookResp.items.length;
+      res.status(200).send(bookResp);
+    });
+  } catch (error) {
+    logger.error({ date: Date.now(), error: error });
+  }
+};
+
+/**
+ * Book Detail
+ * @param {*} req
+ * @param {*} res
+ */
+exports.bookDetail = async function (req, res) {
+  const q = req.query;
+  try {
+    client.get('books', async (err, data) => {
+      if (data) {
+        const keys = Object.keys(q);
+        const books = JSON.parse(data);
+        const found = books.filter(function (item) {
+          return keys.every((k) => {
+            return item[k] === q[k];
+          });
+        });
+        if (found.length > 0) {
+          res.status(200).send(found);
+        } else {
+          res.status(404).send({ message: 'Book not found' });
+        }
+      } else {
+        res.status(404).send({ message: 'Book not found!' });
       }
     });
   } catch (error) {
@@ -48,26 +94,11 @@ exports.bookList = async function (req, res) {
   }
 };
 
-exports.bookDetail = async function (req, res) {
-  const { id } = req.params;
-  try {
-    const book = await bookModel.findOne({ _id: id });
-    if (!book) {
-      res.status(404).send({ message: 'Book not found' });
-    } else {
-      res.status(200).send(book);
-    }
-  } catch (error) {
-    // console.log(error)
-    logger.error({ date: Date.now(), error: error });
-    if (error.name === 'CastError') {
-      res.status(400).send({ message: error.message });
-    } else {
-      res.status(500).send({ message: 'Something went wrong' });
-    }
-  }
-};
-
+/**
+ * Book Create
+ * @param {*} req
+ * @param {*} res
+ */
 exports.bookCreate = async function (req, res) {
   const newBook = new bookModel(req.body);
 
@@ -97,6 +128,11 @@ exports.bookCreate = async function (req, res) {
   }
 };
 
+/**
+ * Book Update
+ * @param {*} req
+ * @param {*} res
+ */
 exports.bookUpdate = async function (req, res) {
   const { id } = req.params;
   const newDataBook = req.body;
@@ -127,6 +163,11 @@ exports.bookUpdate = async function (req, res) {
   }
 };
 
+/**
+ * Book Delete
+ * @param {*} req
+ * @param {*} res
+ */
 exports.bookDelete = async function (req, res) {
   const { id } = req.params;
   try {

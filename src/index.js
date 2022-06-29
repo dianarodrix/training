@@ -1,9 +1,8 @@
 const express = require('express');
-const bookRoutes = require('../routes/bookRoutes');
+const settings = require('../config/constants');
 const connect = require('../config/connectionMongoDb');
 const { healthMonitor, dependencyServices } = require('@condor-labs/health-middleware');
 require('dotenv').config();
-const settings = require('../config/constants');
 const PORT = process.env.PORT || 3000;
 const app = express();
 const logger = require('@condor-labs/logger');
@@ -24,10 +23,11 @@ const healthConfig = {
   ],
 };
 
-const bookModel = require('../model/bookModel');
+const bookRoutes = require('./routes/bookRoutes');
+const bookModel = require('./model/bookModel');
 const { ApolloServer } = require('apollo-server-express');
-const typeDefs = require('../model/schema');
-const resolvers = require('../model/resolvers');
+const typeDefs = require('./model/schema');
+const resolvers = require('./model/resolvers');
 
 const SERVER = new ApolloServer({
   typeDefs,

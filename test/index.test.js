@@ -1,6 +1,6 @@
 const express = require('express');
 const request = require('supertest');
-const bookRoutes = require('../routes/bookRoutes');
+const bookRoutes = require('../src/routes/bookRoutes');
 const connect = require('../config/connectionMongoDb');
 
 const PORT = 3000;

@@ -10,7 +10,7 @@ router.get('/', bookController.bookList);
 /**
  * Get book’s details
  */
-router.get('/:id', bookController.bookDetail);
+router.get('/search', bookController.bookDetail);
 
 /**
  * Create a book
