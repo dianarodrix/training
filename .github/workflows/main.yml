@@ -58,6 +58,12 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           
+      - name: Deploy AWS EC2
+        run: |
+          cd demo/training/
+          git pull
+          docker-compose  -f docker-compose.yml -f docker-compose.prod.yml up --build
+          
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo END!
