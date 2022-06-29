@@ -1,6 +1,6 @@
 const express = require('express');
 const request = require('supertest');
-const bookRoutes = require('../routes/bookRoutes');
+const bookRoutes = require('../src/routes/bookRoutes');
 const connect = require('../config/connectionMongoDb');
 
 const PORT = 3000;
@@ -17,16 +17,16 @@ app.use('/books', bookRoutes);
 describe('POST /books', () => {
   describe('given required fields', () => {
     const newBook = {
-      title: `some title${Math.floor(Math.random() * 6)}`,
+      title: `some title-${Math.floor(Math.random() * 6)}`,
       author: 'some author',
       pages: 987,
       status: 'LENT',
     };
 
-    // should respond with a 200 code
-    test('should respond with a 200 status code', async () => {
+    // should respond with a 201 code
+    test('should respond with a 201 status code', async () => {
       const response = await request(app).post('/books').send(newBook);
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
     });
 
     // should respond a json as a content type

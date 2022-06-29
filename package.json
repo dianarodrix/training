@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test jest --forceExit ",
+    "test-and-fail-after-3": "cross-env NODE_ENV=test jest --bail 3",
     "test:watch": "NODE_ENV=test jest  --watchAll --verbose false",
     "coverage": "jest --coverage",
-    "dev": "nodemon src/index.js",
+    "dev": "nodemon src/index.js --ignore test/",
     "start": "pm2 src/index.js",
     "lint": "eslint .",
     "format": "prettier \"**/*.{js,jsx,ts,tsx}\" --write",
@@ -23,10 +24,13 @@
     "@condor-labs/redis": "^1.0.4",
     "apollo-server-express": "^2.25.4",
     "body-parser": "^1.20.0",
+    "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "express-graphql": "^0.12.0",
+    "express-joi-validation": "^5.0.1",
     "graphql": "^15.8.0",
     "graphql-tools": "^8.2.12",
+    "joi": "^17.6.0",
     "mongoose": "^6.3.8",
     "nodemon": "^2.0.16"
   },
@@ -48,7 +52,8 @@
     "jest": "^28.1.1",
     "lint-staged": "10.5.4",
     "prettier": "2.7.1",
-    "supertest": "^6.2.3"
+    "supertest": "^6.2.3",
+    "webpack-cli": "^3.3.12"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

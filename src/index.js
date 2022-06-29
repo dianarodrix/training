@@ -1,12 +1,11 @@
 const express = require('express');
-const bookRoutes = require('../routes/bookRoutes');
+const settings = require('../config/constants');
 const connect = require('../config/connectionMongoDb');
 const { healthMonitor, dependencyServices } = require('@condor-labs/health-middleware');
-
-const settings = require('../config/constants');
+require('dotenv').config();
 const PORT = process.env.PORT || 3000;
 const app = express();
-
+const logger = require('@condor-labs/logger');
 const healthConfig = {
   service: 'service demo',
   description: 'my service with some demo check',
@@ -24,10 +23,11 @@ const healthConfig = {
   ],
 };
 
-const bookModel = require('../model/bookModel');
+const bookRoutes = require('./routes/bookRoutes');
+const bookModel = require('./model/bookModel');
 const { ApolloServer } = require('apollo-server-express');
-const typeDefs = require('../model/schema');
-const resolvers = require('../model/resolvers');
+const typeDefs = require('./schema/bookSchema');
+const resolvers = require('./schema/bookResolvers');
 
 const SERVER = new ApolloServer({
   typeDefs,
@@ -58,15 +58,18 @@ app.use(async function (req, res, next) {
   next();
 });
 
-app.set('port', PORT);
+async function startServer() {
+  app.set('port', PORT);
 
-app.get('/', (req, res) => {
-  res.status(200).json({
-    message: 'HI!',
+  app.get('/', (req, res) => {
+    res.status(200).json({
+      message: 'HI!',
+    });
   });
-});
-app.use('/books', bookRoutes);
+  app.use('/books', bookRoutes);
+  app.listen(PORT, () => {
+    logger.info(`App listening on port ${PORT}`);
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+startServer();
