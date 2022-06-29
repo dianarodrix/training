@@ -1,4 +1,5 @@
-const bookModel = require('../model/bookModel');
+const { getBooks, getBookDetail, createBook, updateBook, deleteBook } = require('../services/bookServices');
+
 const logger = require('@condor-labs/logger');
 
 const { redisSettings } = require('../../config/constants');
@@ -44,15 +45,13 @@ exports.bookList = async function (req, res) {
   };
   try {
     // Check the redis store for the data first
-    client.del('books');
+    // client.del('books');
     client.get('books', async (err, data) => {
       if (data) {
         bookList = JSON.parse(data);
         bookResp.items = bookList.slice(offset, offset + limit);
       } else {
-        bookList = await bookModel.find().sort({ title: 1 });
-        // save in cache
-        client.setex('books', 1440, JSON.stringify(bookList));
+        bookList = await getBooks(client);
         bookResp.items = bookList.slice(offset, offset + limit);
       }
       bookResp.size = bookResp.items.length;
@@ -60,6 +59,7 @@ exports.bookList = async function (req, res) {
     });
   } catch (error) {
     logger.error({ date: Date.now(), error: error });
+    res.status(500).send({ message: 'Something went wrong' });
   }
 };
 
@@ -71,26 +71,10 @@ exports.bookList = async function (req, res) {
 exports.bookDetail = async function (req, res) {
   const q = req.query;
   try {
-    client.get('books', async (err, data) => {
-      if (data) {
-        const keys = Object.keys(q);
-        const books = JSON.parse(data);
-        const found = books.filter(function (item) {
-          return keys.every((k) => {
-            return item[k] === q[k];
-          });
-        });
-        if (found.length > 0) {
-          res.status(200).send(found);
-        } else {
-          res.status(404).send({ message: 'Book not found' });
-        }
-      } else {
-        res.status(404).send({ message: 'Book not found!' });
-      }
-    });
+    return await getBookDetail(res, client, q);
   } catch (error) {
     logger.error({ date: Date.now(), error: error });
+    res.status(500).send({ message: 'Something went wrong' });
   }
 };
 
@@ -100,32 +84,8 @@ exports.bookDetail = async function (req, res) {
  * @param {*} res
  */
 exports.bookCreate = async function (req, res) {
-  const newBook = new bookModel(req.body);
-
-  try {
-    const bookExist = await bookModel.findOne({ title: newBook.title });
-    if (bookExist) {
-      res.status(409).send({ message: 'Book already exist' });
-    } else {
-      const data = await bookModel.create(req.body);
-      // console.log(data)
-      await data.save().then(function () {
-        client.del('books');
-        res.status(201).send({ message: 'Book created' });
-      });
-    }
-  } catch (error) {
-    logger.error({ date: Date.now(), error: error });
-    if (error.name === 'ValidationError') {
-      const errors = {};
-      Object.keys(error.errors).forEach((key) => {
-        errors[key] = error.errors[key].message;
-      });
-      res.status(400).send(errors);
-    } else {
-      res.status(500).send({ message: 'Something went wrong' });
-    }
-  }
+  const q = req.body;
+  return await createBook(res, client, q);
 };
 
 /**
@@ -134,33 +94,7 @@ exports.bookCreate = async function (req, res) {
  * @param {*} res
  */
 exports.bookUpdate = async function (req, res) {
-  const { id } = req.params;
-  const newDataBook = req.body;
-  try {
-    const bookExist = await bookModel.findOne({ _id: id });
-    if (!bookExist) {
-      res.status(400).send({ message: 'Book does not exist' });
-    } else {
-      await bookModel.updateOne({ _id: id }, { $set: newDataBook }, { runValidators: true }).then(function () {
-        client.del('books');
-        res.status(202).send({ message: 'Book updated' });
-      });
-    }
-  } catch (error) {
-    logger.error({ date: Date.now(), error: error });
-    if (error.name === 'CastError') {
-      res.status(400).send({ message: error.message });
-    }
-    if (error.name === 'ValidationError') {
-      const errors = {};
-      Object.keys(error.errors).forEach((key) => {
-        errors[key] = error.errors[key].message;
-      });
-      res.status(409).send(errors);
-    } else {
-      res.status(500).send({ message: 'Something went wrong' });
-    }
-  }
+  return await updateBook(req, res, client);
 };
 
 /**
@@ -169,23 +103,5 @@ exports.bookUpdate = async function (req, res) {
  * @param {*} res
  */
 exports.bookDelete = async function (req, res) {
-  const { id } = req.params;
-  try {
-    const bookExist = await bookModel.findOne({ _id: id });
-    if (!bookExist) {
-      res.status(404).send({ message: 'Book does not exist' });
-    } else {
-      await bookModel.deleteOne({ _id: id }).then(function () {
-        client.del('books');
-        res.status(201).send({ message: 'Book deleted successfully' });
-      });
-    }
-  } catch (error) {
-    logger.error({ date: Date.now(), error: error });
-    if (error.name === 'CastError') {
-      res.status(400).send({ message: error.message });
-    } else {
-      res.status(500).send({ message: 'Something went wrong' });
-    }
-  }
+  return await deleteBook(req, res, client);
 };

@@ -1,4 +1,5 @@
 const bookModel = require('../model/bookModel');
+
 const logger = require('@condor-labs/logger');
 
 const { redisSettings } = require('../../config/constants');
