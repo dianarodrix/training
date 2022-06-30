@@ -45,8 +45,8 @@ jobs:
       #- name: Run test
       # run: |
       #    echo --- Running test cases ---
-      #   docker-compose -f docker-compose.yml -f docker-compose.dev.yml -p testing up --build --exit-code-from api-test
-      #  echo --- Completed test cases ---
+      #    docker-compose -f docker-compose.yml -f docker-compose.dev.yml -p testing up --build --exit-code-from api-test
+      #    echo --- Completed test cases ---
 
       # Name of step
       - name: Start AWS EC2
