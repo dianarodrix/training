@@ -60,7 +60,7 @@ jobs:
           
       - name: Deploy AWS EC2
         run: |
-          cd demo/training/
+          cd /home/ec2-user/demo/training
           git pull
           docker-compose  -f docker-compose.yml -f docker-compose.prod.yml up --build
           
