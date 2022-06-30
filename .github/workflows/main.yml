@@ -53,24 +53,29 @@ jobs:
         # Run AWS Command on the GitHub Hosted runner which starts the instance using AWS authentication stored in GitHub Secrets (see below how to add)
         run: |
           aws ec2 start-instances --instance-ids ${{secrets.AWS_EC2_INSTANCE_ID }}
+          cd  /home/ec2-user/demo/training
+          docker login
+          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/demo
+          docker-compose down
+          docker-compose  -f docker-compose.yml -f docker-compose.prod.yml up --build
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           
-      - name: Deploy AWS EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets._USERNAME }}
-          password: ${{ secrets._PASSWORD }} 
-          #key: ${{ secrets.AWS_PRIVATE_KEY }}
-          script: |
-            cd  /home/ec2-user/demo/training
-            docker login
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/demo
-            docker-compose down
-            docker-compose  -f docker-compose.yml -f docker-compose.prod.yml up --build
+      #- name: Deploy AWS EC2
+      #  uses: appleboy/ssh-action@master
+      #  with:
+      #    host: ${{ secrets.AWS_HOST }}
+      #    username: ${{ secrets._USERNAME }}
+      #    password: ${{ secrets._PASSWORD }} 
+      #    #key: ${{ secrets.AWS_PRIVATE_KEY }}
+      #    script: |
+      #      cd  /home/ec2-user/demo/training
+      #      docker login
+      #      docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/demo
+      #      docker-compose down
+      #      docker-compose  -f docker-compose.yml -f docker-compose.prod.yml up --build
           
       # Runs a single command using the runners shell
       - name: Run a one-line script
