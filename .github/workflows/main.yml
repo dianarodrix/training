@@ -47,9 +47,15 @@ jobs:
       #    echo --- Running test cases ---
       #    docker-compose -f docker-compose.yml -f docker-compose.dev.yml -p testing up --build --exit-code-from api-test
       #    echo --- Completed test cases ---
-
+      - name: Create env file
+        working-directory: src/app
+        run: |
+          touch .env
+          echo "${{ secrets.SERVER_ENV_PROD }}" > .env
+          cat .env
       # Name of step
       - name: Start AWS EC2
+        working-directory: src/app
         # Run AWS Command on the GitHub Hosted runner which starts the instance using AWS authentication stored in GitHub Secrets (see below how to add)
         run: |
           aws ec2 start-instances --instance-ids ${{secrets.AWS_EC2_INSTANCE_ID }}
