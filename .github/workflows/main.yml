@@ -63,7 +63,7 @@ jobs:
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USERNAME }}
-          password: ${{ secrets.AWS_PASSWORD }} 
+          #password: ${{ secrets.AWS_PASSWORD }} 
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
             cd  /home/ec2-user/demo/training
