@@ -59,10 +59,16 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           
       - name: Deploy AWS EC2
-        run: |
-          cd /home/ec2-user/demo/training
-          git pull
-          docker-compose  -f docker-compose.yml -f docker-compose.prod.yml up --build
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ec2-user
+          key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+          script: |
+            docker login
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/demo
+            docker-compose down
+            docker-compose  -f docker-compose.yml -f docker-compose.prod.yml up --build
           
       # Runs a single command using the runners shell
       - name: Run a one-line script
