@@ -62,9 +62,10 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_HOST }}
-          username: ec2-user
-          key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+          username: ${{ secrets.AWS_USERNAME }}
+          password: ${{ secrets.AWS_PASSWORD }} 
           script: |
+            cd  /home/ec2-user/demo/training
             docker login
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/demo
             docker-compose down
