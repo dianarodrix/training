@@ -62,7 +62,7 @@ jobs:
           docker login
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/demo
           docker-compose down
-          docker-compose  -f docker-compose.yml -f docker-compose.prod.yml up --build
+          docker-compose  -f docker-compose.yml -f docker-compose.dev.yml up --build
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
